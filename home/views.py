@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User,auth
 from .models import role, role_and_user_connex
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from .forms import enqueteForm
 
-# Create your views here.
+
 def registration(request):
     all_roles = role.objects.all()
     context = {
@@ -52,9 +54,28 @@ def login(request):
             return redirect('login')
     return render(request, 'login.html', context)
 
-
+@login_required
 def home_admin(request):
-    return render(request, 'home_admin.html')
+    return render(request, 'admin/main_admin.html')
 
+@login_required
 def home_enqueteur(request):
-    return render(request, 'home_enqueteur.html')
+    return render(request, 'enqueteur/home_enqueteur.html')
+
+def create_enquete(request):
+    if request.method == 'POST':
+        form = enqueteForm(request.POST)
+        if form.is_valid():
+            # Create an instance of enquete via enqueteForm and saves it without commiting
+            enquete = form.save(commit= False)
+            # Fill the userID instance
+            enquete.userID = request.user
+            # Commit the instance with the userID
+            enquete.save()
+            return redirect('home_admin')
+        else:
+            form = enqueteForm()
+    context = {
+        'form' : enqueteForm
+    }
+    return render(request, 'admin/enquete_creation.html', context)
