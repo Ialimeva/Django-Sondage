@@ -2,4 +2,28 @@
 
 {% block main %}
 <a href="{% url 'create_enquete' %}"><h2>Créer une enquête</h2></a>
+<table border="1">
+    <tr>
+        <th>Code</th>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Status</th>
+        <th>Creation Date</th>
+        <th>Start Date</th>
+        <th>End Date</th>
+        <th>Username</th>
+    </tr>
+    {% for enquete in enquetes %}
+    <tr>
+        <td>{{ enquete.code }}</td>
+        <td>{{ enquete.name }}</td>
+        <td>{{ enquete.description }}</td>
+        <td>{{ enquete.status }}</td>
+        <td>{{ enquete.creation_date }}</td>
+        <td>{{ enquete.start_date }}</td>
+        <td>{{ enquete.end_date }}</td>
+        <td>{{ enquete.userID }}</td>
+    </tr>
+    {% endfor %}
+</table>
 {% endblock  %}

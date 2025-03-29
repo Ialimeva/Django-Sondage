@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User,auth
-from .models import role, role_and_user_connex
+from .models import role, role_and_user_connex, enquete
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import enqueteForm
@@ -56,12 +56,16 @@ def login(request):
 
 @login_required
 def home_admin(request):
-    return render(request, 'admin/main_admin.html')
+    context = {
+        'enquetes' : enquete.objects.all()
+    }
+    return render(request, 'admin/main_admin.html', context)
 
 @login_required
 def home_enqueteur(request):
     return render(request, 'enqueteur/home_enqueteur.html')
 
+@login_required
 def create_enquete(request):
     if request.method == 'POST':
         form = enqueteForm(request.POST)
