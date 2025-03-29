@@ -33,7 +33,7 @@ class questions(models.Model):
 # Creation des reponses
 class responseSelection(models.Model):
     reponse = models.CharField(max_length = 255)
-    note = models.IntegerField(max_length = 10)
+    note = models.IntegerField()
     questionID = models.ForeignKey(questions, on_delete= models.CASCADE, related_name= 'reponseSelection')
 
 # Creation des connections entre enquete, questions et reponses
