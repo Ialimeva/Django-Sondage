@@ -54,7 +54,7 @@ def login(request):
             return redirect('login')
     return render(request, 'login.html', context)
 
-
+# Everything connected to the homepage of admin, names in templates and all
 @login_required
 def home_admin(request):
     context = {
@@ -62,10 +62,10 @@ def home_admin(request):
     }
     return render(request, 'admin/main_admin.html', context)
 
-
+# Same but in the enqueteur homepage
 @login_required
 def home_enqueteur(request):
-    # Get all the enquete of the user
+    # Get all the enquete of the user (and filter it so the enqueteur sees their enquetes)
     userID = request.user
     all_enquete = enquete.objects.filter(userID = userID)
     context = {
@@ -73,7 +73,7 @@ def home_enqueteur(request):
     }
     return render(request, 'enqueteur/home_enqueteur.html', context)
 
-
+# This creates and saves the enquete for the admin
 @login_required
 def create_enquete(request):
     if request.method == 'POST':
@@ -99,7 +99,7 @@ def create_enquete(request):
     }
     return render(request, 'admin/enquete_creation.html', context)
 
-
+# This creates and save the enquete for the enqueteur. The roleID is not used here btw, just there cause otherwise it won't save and have an error
 @login_required
 def create_enquete_enqueteur(request):
     if request.method == 'POST':
@@ -126,3 +126,50 @@ def create_enquete_enqueteur(request):
         'form' : enqueteForm,
     }
     return render(request, 'enqueteur/enquete_creation_enqueteur.html', context)
+
+@login_required
+# Update enquete for admin
+def enqueteUPD_admin(request, pk):
+    # Gets the existing instance from template pk
+    enquete_instance = enquete.objects.get(id = pk)
+    
+    if request.method == 'POST':
+        # Updates the instance but not saving it yet, just in the memory
+        upd_enquete = enqueteForm(request.POST, instance= enquete_instance )
+        
+        # Saves it
+        if upd_enquete.is_valid():
+            upd_enquete.save()
+            return redirect ('home_admin')
+    else:
+        # Just keeps the former instance cause you did nothing with it
+        upd_enquete = enqueteForm(instance= enquete_instance)                                            
+    context = {
+            'form' : upd_enquete
+    }
+    return render(request, 'admin/enquete_creation.html', context)
+
+@login_required
+# Update enquete for enqueteur
+def enqueteUPD_enqueteur(request, pk):
+    # Gets the existing instance
+    enquete_instance = enquete.objects.get(id = pk)
+    
+    if request.method == 'POST':
+        
+        # Updates the instance but not saving it yet, just in the memory
+        upd_enquete = enqueteForm(request.POST, instance= enquete_instance ) 
+        
+        # Saves it
+        if upd_enquete.is_valid():
+            upd_enquete.save()
+            return redirect ('home_enqueteur')
+    else:
+        # Just resend the former instance back
+        upd_enquete = enqueteForm(instance= enquete_instance)
+    context = {
+        'form' : upd_enquete
+    }
+    return render(request, 'enqueteur/enquete_creation_enqueteur.html', context)
+    
+    

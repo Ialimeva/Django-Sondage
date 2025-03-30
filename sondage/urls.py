@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from home.views import registration, login, home_admin, home_enqueteur, create_enquete, create_enquete_enqueteur
+from home.views import registration, login, home_admin, home_enqueteur, create_enquete, create_enquete_enqueteur, enqueteUPD_admin, enqueteUPD_enqueteur
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('register/', registration),
@@ -25,4 +25,7 @@ urlpatterns = [
     path('home-enqueteur/', home_enqueteur, name='home_enqueteur'),
     path('create-enquete/', create_enquete, name='create_enquete'),
     path('create-enquete-enqueteur/', create_enquete_enqueteur, name='create_enquete_enqueteur'),
+    # Gets the enquete.id from template and puts it in pk
+    path('update-enquete-admin/<str:pk>', enqueteUPD_admin, name='update_enquete_admin'),
+    path('update-enquete-enqueteur/<str:pk>', enqueteUPD_enqueteur, name='update_enquete_enqueteur'),
 ]
