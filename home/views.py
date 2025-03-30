@@ -54,6 +54,7 @@ def login(request):
             return redirect('login')
     return render(request, 'login.html', context)
 
+
 @login_required
 def home_admin(request):
     context = {
@@ -61,9 +62,17 @@ def home_admin(request):
     }
     return render(request, 'admin/main_admin.html', context)
 
+
 @login_required
 def home_enqueteur(request):
-    return render(request, 'enqueteur/home_enqueteur.html')
+    # Get all the enquete of the user
+    userID = request.user
+    all_enquete = enquete.objects.filter(userID = userID)
+    context = {
+            'all_enquete' : all_enquete
+    }
+    return render(request, 'enqueteur/home_enqueteur.html', context)
+
 
 @login_required
 def create_enquete(request):
@@ -72,14 +81,48 @@ def create_enquete(request):
         if form.is_valid():
             # Create an instance of enquete via enqueteForm and saves it without commiting
             enquete = form.save(commit= False)
+            
             # Fill the userID instance
             enquete.userID = request.user
+            
+            # Get user roleID and role_name
+            user_role = role_and_user_connex.objects.get(userID= request.user)
+            enquete.roleID = user_role.roleID
+
             # Commit the instance with the userID
             enquete.save()
             return redirect('home_admin')
         else:
             form = enqueteForm()
     context = {
-        'form' : enqueteForm
+        'form' : enqueteForm,
     }
     return render(request, 'admin/enquete_creation.html', context)
+
+
+@login_required
+def create_enquete_enqueteur(request):
+    if request.method == 'POST':
+        form = enqueteForm(request.POST)
+        if form.is_valid():
+            # Create an instance of enquete via enqueteForm and saves it without commiting
+            enquete = form.save(commit= False)
+            
+            # Fill the userID instance
+            enquete.userID = request.user
+            
+            # Get user roleID and role_name
+            user_role = role_and_user_connex.objects.get(userID=request.user)
+            enquete.roleID = user_role.roleID
+
+
+            # Commit the instance with the userID
+            enquete.save()
+            
+            return redirect('home_enqueteur')
+        else:
+            form = enqueteForm()
+    context = {
+        'form' : enqueteForm,
+    }
+    return render(request, 'enqueteur/enquete_creation_enqueteur.html', context)

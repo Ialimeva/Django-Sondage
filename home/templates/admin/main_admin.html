@@ -12,6 +12,7 @@
         <th>Start Date</th>
         <th>End Date</th>
         <th>Username</th>
+        <th>Role</th>
     </tr>
     {% for enquete in enquetes %}
     <tr>
@@ -23,6 +24,7 @@
         <td>{{ enquete.start_date }}</td>
         <td>{{ enquete.end_date }}</td>
         <td>{{ enquete.userID }}</td>
+        <td>{{ enquete.roleID }}</td>
     </tr>
     {% endfor %}
 </table>

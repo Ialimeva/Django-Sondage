@@ -6,11 +6,14 @@ import uuid
 # Creation des roles
 class role(models.Model):
     role_name = models.CharField(max_length=15)
-
+    
+    def __str__(self):
+        return self.role_name
 # Connection entre role et user
 class role_and_user_connex(models.Model):
-    userID = models.ForeignKey(User, on_delete=models.CASCADE)
-    roleID = models.ForeignKey(role, on_delete=models.CASCADE)
+    userID = models.ForeignKey(User, on_delete=models.CASCADE, related_name= 'role_connex')
+    roleID = models.ForeignKey(role, on_delete=models.CASCADE, related_name= 'user_connex')
+
     
 # Creation des enquetes
 class enquete(models.Model):
@@ -22,6 +25,7 @@ class enquete(models.Model):
     start_date = models.DateField(null= False, blank= False)
     end_date = models.DateField(null= False, blank= False)
     userID = models.ForeignKey(User, on_delete = models.CASCADE, related_name= 'enquete')
+    roleID = models.ForeignKey(role, on_delete = models.CASCADE, related_name= 'enquete')
     token = models.UUIDField(default = uuid.uuid4, editable = False, unique= True)
     
 # Creation des questions
@@ -52,4 +56,3 @@ class reponses(models.Model):
     questionID = models.ForeignKey(questions, on_delete= models.CASCADE, related_name= 'reponses')
     responseSelectionID = models.ForeignKey(responseSelection, on_delete= models.CASCADE, related_name= 'reponses')
     response_comment = models.CharField(max_length= 50)
-    
