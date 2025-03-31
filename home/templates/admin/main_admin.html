@@ -27,7 +27,7 @@
         <td>{{ enquete.roleID }}</td>
         <!-- Not forgeting the enquete.id otherwise it won't work -->
         <td><a href="{% url 'update_enquete_admin' enquete.id %}"><button>Edit</button></a></td>
-        <td><a href="/"><button>Delete</button></a></td>
+        <td><a href="{% url 'delete_enquete_admin' enquete.id %}"><button>Delete</button></a></td>
     </tr>
     {% endfor %}
 </table>

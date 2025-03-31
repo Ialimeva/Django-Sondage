@@ -173,3 +173,32 @@ def enqueteUPD_enqueteur(request, pk):
     return render(request, 'enqueteur/enquete_creation_enqueteur.html', context)
     
     
+@login_required
+def enqueteDelete_admin(request, pk):
+    
+    # Getting the instance to delete from the database
+    enquete_instance = enquete.objects.get(id = pk)
+    
+    # Deleting the instance
+    if request.method == 'POST':
+        enquete_instance.delete()
+        return redirect ('home_admin')
+    return render(request, 'admin/delete.html')
+
+@login_required
+def enqueteDelete_enqueteur(request, pk):
+    
+    # Getting the instance to delete from the database
+    enquete_instance = enquete.objects.get(id = pk)
+    
+    # Deleting the instance
+    if request.method == 'POST':
+        enquete_instance.delete()
+        return redirect ('home_enqueteur')
+    return render(request, 'enqueteur/delete.html')
+
+
+    
+    
+        
+    
