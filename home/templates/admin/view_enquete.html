@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Enquete</title>
+</head>
+<body>
+    <a href="{% url 'add_question_admin' enqueteID  %}">Add question</a>
+    <table border="1">
+        <tr>
+            <th>Question</th>
+            <th>Description</th>
+            <th>Response Type</th>
+        </tr>
+        {% for question in all_questions %}
+        <tr>
+            <td>{{ question.question }}</td>
+            <td>{{ question.description }}</td>
+            <td>{{ question.response_type }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+</body>
+</html>

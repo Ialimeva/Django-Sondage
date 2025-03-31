@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User,auth
-from .models import role, role_and_user_connex, enquete
+from .models import role, role_and_user_connex, enquete, questions
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import enqueteForm
+from .forms import enqueteForm, questionForm
 
 
 def registration(request):
@@ -197,6 +197,45 @@ def enqueteDelete_enqueteur(request, pk):
         return redirect ('home_enqueteur')
     return render(request, 'enqueteur/delete.html')
 
+# View all the questions and answers of an enquete for admin
+@login_required
+def view_admin(request, pk):
+    # Gets all the questions of a specific enquete using pk arg that we got from urls
+    all_questions = questions.objects.filter(enqueteID = pk)
+    enquete_needed = enquete.objects.get(id = pk)
+    enqueteID = enquete_needed.id
+    questions.enqueteID = enqueteID
+    context = {
+        'all_questions' : all_questions,
+        'enqueteID' : questions.enqueteID
+    }
+    return render (request, 'admin/view_enquete.html', context)
+
+# View all the questions and answers of an enquete for enqueteur
+@login_required
+def view_enqueteur(request, pk):
+    return render (request, 'enqueteur/view_enquete.html')
+
+
+@login_required
+def addQuestion_admin(request, pk):
+    
+    enqueteID = enquete.objects.get(id = pk)
+    # Adding instance to the form
+    if request.method == 'POST':
+        qForm = questionForm(request.POST)
+        
+        if qForm.is_valid():
+            questions = qForm.save(commit = False)
+            questions.enqueteID = enqueteID
+            questions.save()
+            return redirect ('view_enquete_admin', pk = pk)
+        else :
+            qForm = questionForm()
+    context = {
+        'questionForm' : questionForm
+    }
+    return render (request, 'admin/question_creation.html', context)
 
     
     
