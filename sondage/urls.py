@@ -34,4 +34,5 @@ urlpatterns = [
     path('view-enquete-admin/<str:pk>', view_admin, name='view_enquete_admin'),
     path('add-question-admin/<str:pk>', addQuestion_admin, name='add_question_admin'),
     path('view-enquete-enqueteur/<str:pk>', view_enqueteur, name='view_enquete_enqueteur'),
+    path('add-question-enqueteur/<str:pk>', addQuestion_admin, name='add_question_enqueteur'),
 ]

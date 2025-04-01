@@ -50,7 +50,7 @@ class enqueteResponse(models.Model):
     token = models.UUIDField(default= uuid.uuid4, editable= False, unique= True)
     enqueteID = models.ForeignKey(enquete, on_delete= models.CASCADE, related_name= 'enqueteResponse')
     status = models.CharField(max_length= 10)
-    response = models.DateField(auto_now_add= True)
+    responseDate = models.DateField(auto_now_add= True)
     validationDateTime = models.DateField(null= False, blank= False)
 
 # Creation des reposes finals

@@ -157,7 +157,7 @@ def enqueteUPD_enqueteur(request, pk):
     
     if request.method == 'POST':
         
-        # Updates the instance but not saving it yet, just in the memory
+        # Updates the instance but not saving it yet, just in the memory and putting that instance into a form
         upd_enquete = enqueteForm(request.POST, instance= enquete_instance ) 
         
         # Saves it
@@ -165,7 +165,7 @@ def enqueteUPD_enqueteur(request, pk):
             upd_enquete.save()
             return redirect ('home_enqueteur')
     else:
-        # Just resend the former instance back
+        # Shows the instance in a form cause this is a get method
         upd_enquete = enqueteForm(instance= enquete_instance)
     context = {
         'form' : upd_enquete
@@ -200,42 +200,99 @@ def enqueteDelete_enqueteur(request, pk):
 # View all the questions and answers of an enquete for admin
 @login_required
 def view_admin(request, pk):
-    # Gets all the questions of a specific enquete using pk arg that we got from urls
-    all_questions = questions.objects.filter(enqueteID = pk)
-    enquete_needed = enquete.objects.get(id = pk)
-    enqueteID = enquete_needed.id
-    questions.enqueteID = enqueteID
+    
+    # Gets the enquete instance we need 
+    enquete_instance = enquete.objects.get(id = pk)
+
+    # Gets all the questions of a specific enquete using related name that can give access of questions to enquete
+    all_questions = enquete_instance.questions.all() # is like questioms.objects.filter(enqueteID = enquete_instance) which is automatically made and you can use it with the related name
+    
+    # Get the enquete id ftom the enquete_needed(this will be a number). Otherwise it's gonna see all the instances instead and we only need the id
+    enqueteID = enquete_instance.id
+    
+
     context = {
         'all_questions' : all_questions,
-        'enqueteID' : questions.enqueteID
+        'enqueteID' : enqueteID
     }
     return render (request, 'admin/view_enquete.html', context)
 
 # View all the questions and answers of an enquete for enqueteur
 @login_required
 def view_enqueteur(request, pk):
-    return render (request, 'enqueteur/view_enquete.html')
+    # Gets the instance i need
+    enquete_instance = enquete.objects.get(id = pk)
+    
+    # Gets instance id for template
+    enqueteID = enquete_instance.id
+    
+    # Filter the questions instances by the enquete instance and gets all of them
+    all_questions = enquete_instance.questions.all()
+    
+    context = {
+        'all_questions' : all_questions,
+        'enqueteID' : enqueteID
+    }
+    return render (request, 'enqueteur/view_enquete.html', context)
 
 
 @login_required
 def addQuestion_admin(request, pk):
-    
-    enqueteID = enquete.objects.get(id = pk)
+    # Getting the enquete instance including id
+    enqueteID = enquete.objects.get(id = pk)  
+    context = {
+        'questionForm' : questionForm
+    }
     # Adding instance to the form
     if request.method == 'POST':
         qForm = questionForm(request.POST)
         
         if qForm.is_valid():
+            # Saving the instance but not commiting it
             questions = qForm.save(commit = False)
+            
+            # Adding value to the enqueteID which is the enquete instance we got before
             questions.enqueteID = enqueteID
+            
+            # Commiting it
             questions.save()
-            return redirect ('view_enquete_admin', pk = pk)
+            return redirect ('view_enquete_admin', pk = pk)  # Needs a pk cause the link needs a pk
         else :
-            qForm = questionForm()
+           qForm = questionForm()
+           
+    # Gets the website cause it's a GET method 
+    else:
+        return render (request, 'admin/question_creation.html', context)
+    
+# Adds questions to enqueteur
+@login_required
+def addQuestion_enqueteur(request, pk):
     context = {
         'questionForm' : questionForm
     }
-    return render (request, 'admin/question_creation.html', context)
+    # Gets the enquete instance to add questions to
+    enquete_instance = enquete.objects.get(id = pk)
+    
+    # Add question to that instance
+    if request.method == 'POST':
+        qForm = questionForm(request.POST)
+        
+        if qForm.is_valid():
+            #Saves but no commit
+            qForm.save(commit= False)
+        
+            # Adds the enquete instance
+            qForm.enqueteID = enquete_instance
+        
+            # Saves
+            qForm.save()
+            return redirect ('view_enquete_enqueteur', pk = pk)
+        else:
+            qForm = questionForm()
+    else:        
+        return render (request, 'enqueteur/question_creation.html', context)
+
+
 
     
     

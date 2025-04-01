@@ -26,6 +26,7 @@
             <td>{{ enquete.creation_date }}</td>
             <td>{{ enquete.start_date }}</td>
             <td>{{ enquete.end_date }}</td>
+            <td><a href="{% url 'view_enquete_enqueteur' enquete.id %}"><button>View</button></a></td>
             <td><a href="{% url 'update_enquete_enqueteur' enquete.id %}"><button>Edit</button></a></td>
             <td><a href="{% url 'delete_enquete_enqueteur' enquete.id %}"><button>Delete</button></a></td>
         </tr>
