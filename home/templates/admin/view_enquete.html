@@ -18,6 +18,7 @@
             <td>{{ question.question }}</td>
             <td>{{ question.description }}</td>
             <td>{{ question.response_type }}</td>
+            <td><a href="{% url 'upd_question_admin' question.id %}"><button>Edit</button></a></td>
         </tr>
         {% endfor %}
     </table>

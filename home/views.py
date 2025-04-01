@@ -292,7 +292,57 @@ def addQuestion_enqueteur(request, pk):
     else:        
         return render (request, 'enqueteur/question_creation.html', context)
 
+# Edit question instance
+@login_required
+def updQuestion_adm(request, pk):
+    
+    # Gets instance to edit
+    question_instance = questions.objects.get(id = pk)
+    
+    # Gets enquete instance to comeback to the view_enquete_admin
+    enquete_instance = question_instance.enqueteID
+    
+    # Getting the form
+    qForm = questionForm(instance= question_instance)
+    
+    # Edit instance
+    if request.method == 'POST':
+        qForm = questionForm(request.POST, instance= question_instance)
+        if qForm.is_valid():
+            qForm.save()
+            return redirect('view_enquete_admin', pk = enquete_instance)
+        else:
+            qForm = questionForm(instance= question_instance)  
+    context = {
+        'questionForm' : qForm
+    }
+    return render (request, 'admin/question_creation.html', context) 
 
+# Edit question instance
+@login_required
+def updQuestion_enqueteur(request, pk):
+    
+    # Gets instance to edit
+    question_instance = questions.objects.get(id = pk)
+    
+    # Gets enquete instance to comeback to view_enqueteur
+    enquete_instance = question_instance.enqueteID
+
+    # Getting the form
+    qForm = questionForm(instance= question_instance)
+    
+    # Edit instance
+    if request.method == 'POST':
+        qForm = questionForm(request.POST, instance= question_instance)
+        if qForm.is_valid():
+            qForm.save()
+            return redirect('view_enquete_enqueteur', pk = enquete_instance.id)
+        else:
+            qForm = questionForm(instance= question_instance)  
+    context = {
+        'questionForm' : qForm
+    }
+    return render (request, 'enqueteur/question_creation.html', context) 
 
     
     

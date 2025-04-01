@@ -38,6 +38,9 @@ class questions(models.Model):
     enqueteID = models.ForeignKey(enquete, on_delete= models.CASCADE, related_name= 'questions')
     response_type = models.CharField(max_length = 50)
     
+    def __int__(self):
+        return self.enqueteID
+    
 # Creation des reponses
 class responseSelection(models.Model):
     reponse = models.CharField(max_length = 255)
