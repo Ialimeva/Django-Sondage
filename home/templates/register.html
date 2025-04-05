@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
-    <script src="{% static 'js/function.js' %}"></script>
 </head>
 <body>
     <form action="" method="post">
@@ -29,9 +28,9 @@
         <input type="password" name="password2">
         
         <label for="roleID">Your Role:</label>
-        <select name="roleID" id="">
-            {% for i in all_roles %}
-            <option value="{{ i.id }}">{{ i.role_name }}</option>
+        <select name="roleID">
+            {% for role in all_roles %}
+            <option value="{{ role.id }}">{{ role.role_name }}</option>
             {% endfor %}
         </select>
         <button type="submit" onclick="usercreated()">Register</button>

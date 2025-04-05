@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from home.views import registration, login, home_admin, home_enqueteur, create_enquete, create_enquete_enqueteur, enqueteUPD_admin, enqueteUPD_enqueteur, enqueteDelete_admin, enqueteDelete_enqueteur, view_admin, view_enqueteur, addQuestion_admin, updQuestion_adm, updQuestion_enqueteur
+from home.views import registration, login, home_admin, home_enqueteur, create_enquete, create_enquete_enqueteur, enqueteUPD_admin, enqueteUPD_enqueteur, enqueteDelete_admin, enqueteDelete_enqueteur, view_admin, view_enqueteur, addQuestion_admin, updQuestion_adm, updQuestion_enqueteur, deleteQuestion_adm, deleteQuestion_enqueteur
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -34,7 +34,9 @@ urlpatterns = [
     path('view-enquete-admin/<str:pk>', view_admin, name='view_enquete_admin'),
     path('add-question-admin/<str:pk>', addQuestion_admin, name='add_question_admin'),
     path('update-question-admin/<str:pk>', updQuestion_adm, name='upd_question_admin'),
+    path('delete-question-admin/<str:pk>', deleteQuestion_adm, name='delete_question_admin'),
     path('view-enquete-enqueteur/<str:pk>', view_enqueteur, name='view_enquete_enqueteur'),
     path('add-question-enqueteur/<str:pk>', addQuestion_admin, name='add_question_enqueteur'),
     path('update-question-enqueteur/<str:pk>', updQuestion_enqueteur, name='upd_question_enqueteur'),
+    path('delete-question-enqueteur/<str:pk>', deleteQuestion_enqueteur, name='delete_question_enqueteur'),
 ]

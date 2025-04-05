@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete</title>
+</head>
+<body>
+    <form action="" method="post">
+        {% csrf_token %}
+        <h3>Are you sure</h3>
+        <input type="submit" value="Delete">
+    </form>
+        <a href="{% url 'view_enquete_admin' enqueteID %}"><button>Go back</button></a>
+</body>
+</html>

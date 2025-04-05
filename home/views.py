@@ -21,15 +21,15 @@ def registration(request):
         password2 = request.POST['password2']
 
         if password1 == password2:
+            # Creates the user and saves to User 
             new_user = User.objects.create_user(first_name = first_name, last_name = last_name, email = email, username = username, password = password1)
             new_user.save()
-
+            # Gets the role id from the template
             new_user_role = role.objects.get(id = int(roleID))
             new_user_role.save()
 
             new_user_role_connection = role_and_user_connex.objects.create(userID = new_user, roleID = new_user_role)
             new_user_role_connection.save()
-        return render(request, 'register.html', context)
     return render(request, 'register.html', context)
 
 def login(request):
@@ -82,14 +82,14 @@ def create_enquete(request):
             # Create an instance of enquete via enqueteForm and saves it without commiting
             enquete = form.save(commit= False)
             
-            # Fill the userID instance
+            # Fill the userID instance otherwise it won't get saved
             enquete.userID = request.user
             
-            # Get user roleID and role_name
+            # Get user role of the user
             user_role = role_and_user_connex.objects.get(userID= request.user)
             enquete.roleID = user_role.roleID
 
-            # Commit the instance with the userID
+            # Commit the instance with the userID and roleID
             enquete.save()
             return redirect('home_admin')
         else:
@@ -111,12 +111,12 @@ def create_enquete_enqueteur(request):
             # Fill the userID instance
             enquete.userID = request.user
             
-            # Get user roleID and role_name
+            # Get user role of the user
             user_role = role_and_user_connex.objects.get(userID=request.user)
             enquete.roleID = user_role.roleID
 
 
-            # Commit the instance with the userID
+            # Commit the instance with the userID and role
             enquete.save()
             
             return redirect('home_enqueteur')
@@ -205,9 +205,9 @@ def view_admin(request, pk):
     enquete_instance = enquete.objects.get(id = pk)
 
     # Gets all the questions of a specific enquete using related name that can give access of questions to enquete
-    all_questions = enquete_instance.questions.all() # is like questioms.objects.filter(enqueteID = enquete_instance) which is automatically made and you can use it with the related name
+    all_questions = enquete_instance.questions.all() # is like questions.objects.filter(enqueteID = enquete_instance) which is automatically made and you can use it with the related name
     
-    # Get the enquete id ftom the enquete_needed(this will be a number). Otherwise it's gonna see all the instances instead and we only need the id
+    # Get the enquete id from the enquete_needed(this will be a number). Otherwise it's gonna see all the instances instead and we only need the id
     enqueteID = enquete_instance.id
     
 
@@ -256,7 +256,7 @@ def addQuestion_admin(request, pk):
             
             # Commiting it
             questions.save()
-            return redirect ('view_enquete_admin', pk = pk)  # Needs a pk cause the link needs a pk
+            return redirect ('view_enquete_admin', pk = pk)  # Needs a pk cause the link has a pk
         else :
            qForm = questionForm()
            
@@ -344,7 +344,30 @@ def updQuestion_enqueteur(request, pk):
     }
     return render (request, 'enqueteur/question_creation.html', context) 
 
+@login_required
+def deleteQuestion_adm(request, pk):
+    questionInstance = questions.objects.get(id = pk)
+    enqueteInstance = questionInstance.enqueteID
+    enqueteID = enqueteInstance.id
+    if request.method == 'POST':
+        questionInstance.delete()
+        return redirect ('view_enquete_admin', pk = enqueteID)
     
+    context = {
+        'enqueteID' : enqueteID
+    }
+    return render (request, 'admin/delete_question.html', context)
+
+@login_required
+def deleteQuestion_enqueteur(request, pk):
+    questionInstance = questions.objects.get(id = pk)
+    enqueteInstance = questionInstance.enqueteID
+    enqueteID = enqueteInstance.id
+    if request.method == 'POST':
+        questionInstance.delete()
+        return redirect ('view_enquete_enqueteur', pk = enqueteID)
     
-        
-    
+    context = {
+        'enqueteID' : enqueteID
+    }
+    return render (request, 'enqueteur/delete_question.html', context)

@@ -19,6 +19,7 @@
             <td>{{ question.description }}</td>
             <td>{{ question.response_type }}</td>
             <td><a href="{% url 'upd_question_enqueteur' question.id %}"><button>Edit</button></a></td>
+            <td><a href="{% url 'delete_question_enqueteur' question.id %}"><button>Delete</button></a></td>
         </tr>
         {% endfor %}
     </table>
