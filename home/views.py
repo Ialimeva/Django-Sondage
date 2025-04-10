@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User,auth
-from .models import role, role_and_user_connex, enquete, questions
+from .models import role, role_and_user_connex, enquete, questions, reponses, responseSelection, enqueteResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import enqueteForm, questionForm, responseForm
@@ -430,3 +430,39 @@ def addResponses_enqueteur(request, pk):
     return render (request, 'enqueteur/addResponse.html')
 
 #endregion
+
+# Page which new participants land on
+def welcomePage(request):
+    return render(request, 'welcome.html')
+
+# List all the enquetes participants can take
+def enqueteList(request):
+    # Gets all enquetes
+    all_items = enquete.objects.all()
+
+    context = {
+        'enquetes' : all_items
+    }
+    return render (request, 'participants/enqueteList.html', context)
+
+# Direct participants to the survey
+def survey(request, pk):
+    #Gets enquete to participate on
+    enquete_instance = enquete.objects.get(id = pk)
+
+    #Gets questions of that enquete instance.
+    questions = enquete_instance.questions.all()
+
+    if request.method == 'POST':
+        
+        data = reponses.objects.create()
+        return redirect('')
+
+    context = {
+        'all_questions': questions,
+    }
+    return render(request, 'participants/survey.html', context)
+
+#Getting participants email adress for survey validation
+def emailValidation(request):
+    return render(request, 'participants/emailValidation.html')

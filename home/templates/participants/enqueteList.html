@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Surveys</title>
+</head>
+<body>
+    <h1>Choose one of the following surveys to participate into</h1>
+    <table border="1">
+        <tr>
+            <th>Survey Name</th>
+            <th>Survey Description</th>
+        </tr>
+        {% for enquete in enquetes %}
+        <tr>
+            <td>{{ enquete.name }}</td>
+            <td>{{ enquete.description }}</td>
+            <td>
+                <a href="{% url 'take_enquete' enquete.id %}"><button>Participate</button></a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
