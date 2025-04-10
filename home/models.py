@@ -46,6 +46,8 @@ class responseSelection(models.Model):
     reponse = models.CharField(max_length = 255)
     note = models.IntegerField()
     questionID = models.ForeignKey(questions, on_delete= models.CASCADE, related_name= 'reponseSelection')
+    def __str__(self):
+        return self.reponse
 
 # Creation des connections entre enquete, questions et reponses
 class enqueteResponse(models.Model):

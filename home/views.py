@@ -3,7 +3,7 @@ from django.contrib.auth.models import User,auth
 from .models import role, role_and_user_connex, enquete, questions
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import enqueteForm, questionForm
+from .forms import enqueteForm, questionForm, responseForm
 
 
 def registration(request):
@@ -54,6 +54,8 @@ def login(request):
             return redirect('login')
     return render(request, 'login.html', context)
 
+#region Admin Views
+
 # Everything connected to the homepage of admin, names in templates and all
 @login_required
 def home_admin(request):
@@ -61,17 +63,6 @@ def home_admin(request):
         'enquetes' : enquete.objects.all()
     }
     return render(request, 'admin/main_admin.html', context)
-
-# Same but in the enqueteur homepage
-@login_required
-def home_enqueteur(request):
-    # Get all the enquete of the user (and filter it so the enqueteur sees their enquetes)
-    userID = request.user
-    all_enquete = enquete.objects.filter(userID = userID)
-    context = {
-            'all_enquete' : all_enquete
-    }
-    return render(request, 'enqueteur/home_enqueteur.html', context)
 
 # This creates and saves the enquete for the admin
 @login_required
@@ -98,6 +89,170 @@ def create_enquete(request):
         'form' : enqueteForm,
     }
     return render(request, 'admin/enquete_creation.html', context)
+
+@login_required
+# Update enquete for admin
+def enqueteUPD_admin(request, pk):
+    # Gets the existing instance from template pk
+    enquete_instance = enquete.objects.get(id = pk)
+    
+    if request.method == 'POST':
+        # Updates the instance but not saving it yet, just in the memory
+        upd_enquete = enqueteForm(request.POST, instance= enquete_instance )
+        
+        # Saves it
+        if upd_enquete.is_valid():
+            upd_enquete.save()
+            return redirect ('home_admin')
+    else:
+        # Just keeps the former instance cause you did nothing with it
+        upd_enquete = enqueteForm(instance= enquete_instance)                                            
+    context = {
+            'form' : upd_enquete
+    }
+    return render(request, 'admin/enquete_creation.html', context)
+
+@login_required
+def enqueteDelete_admin(request, pk):
+    
+    # Getting the instance to delete from the database
+    enquete_instance = enquete.objects.get(id = pk)
+    
+    # Deleting the instance
+    if request.method == 'POST':
+        enquete_instance.delete()
+        return redirect ('home_admin')
+    return render(request, 'admin/delete.html')
+
+
+
+# Same but in the enqueteur homepage
+@login_required
+def home_enqueteur(request):
+    # Get all the enquete of the user (and filter it so the enqueteur sees their enquetes)
+    userID = request.user
+    all_enquete = enquete.objects.filter(userID = userID)
+    context = {
+            'all_enquete' : all_enquete
+    }
+    return render(request, 'enqueteur/home_enqueteur.html', context)
+
+# View all the questions and answers of an enquete for admin
+@login_required
+def view_admin(request, pk):
+    
+    # Gets the enquete instance that has questions
+    enquete_instance = enquete.objects.get(id = pk)
+
+    # Gets all the questions of a specific enquete using related name that can give access of questions to enquete
+    all_questions = enquete_instance.questions.all() # is like questions.objects.filter(enqueteID = enquete_instance) which is automatically made and you can use it with the related name
+    
+    # Get the enquete id from the enquete_needed(this will be a number). Otherwise it's gonna see all the instances instead and we only need the id
+    enqueteID = enquete_instance.id
+
+    context = {
+        'all_questions' : all_questions,
+        'enqueteID' : enqueteID,
+    }
+    return render (request, 'admin/view_enquete.html', context)
+
+@login_required
+def addQuestion_admin(request, pk):
+    # Getting the enquete instance including id
+    enqueteID = enquete.objects.get(id = pk)  
+    context = {
+        'questionForm' : questionForm
+    }
+    # Adding instance to the form
+    if request.method == 'POST':
+        qForm = questionForm(request.POST)
+        
+        if qForm.is_valid():
+            # Saving the instance but not commiting it
+            questions = qForm.save(commit = False)
+            
+            # Adding value to the enqueteID which is the enquete instance we got before
+            questions.enqueteID = enqueteID
+            
+            # Commiting it
+            questions.save()
+            return redirect ('view_enquete_admin', pk = pk)  # Needs a pk cause the link has a pk
+        else :
+           qForm = questionForm()
+           
+    # Gets the website cause it's a GET method 
+    else:
+        return render (request, 'admin/question_creation.html', context)
+    
+# Edit question instance
+@login_required
+def updQuestion_adm(request, pk):
+    
+    # Gets instance to edit
+    question_instance = questions.objects.get(id = pk)
+    
+    # Gets enquete instance to comeback to the view_enquete_admin
+    enquete_instance = question_instance.enqueteID
+    
+    # Getting the form
+    qForm = questionForm(instance= question_instance)
+    
+    # Edit instance
+    if request.method == 'POST':
+        qForm = questionForm(request.POST, instance= question_instance)
+        if qForm.is_valid():
+            qForm.save()
+            return redirect('view_enquete_admin', pk = enquete_instance)
+        else:
+            qForm = questionForm(instance= question_instance)  
+    context = {
+        'questionForm' : qForm
+    }
+    return render (request, 'admin/question_creation.html', context) 
+
+@login_required
+def deleteQuestion_adm(request, pk):
+    questionInstance = questions.objects.get(id = pk)
+    enqueteInstance = questionInstance.enqueteID
+    enqueteID = enqueteInstance.id
+    if request.method == 'POST':
+        questionInstance.delete()
+        return redirect ('view_enquete_admin', pk = enqueteID)
+    
+    context = {
+        'enqueteID' : enqueteID
+    }
+    return render (request, 'admin/delete_question.html', context)
+
+@login_required
+# Creates responses
+def addResponse_admin(request, pk):
+    # get question instance to add responses to
+    question_instance = questions.objects.get(id = pk)
+
+    enqueteID = question_instance.enqueteID.id
+    
+    # add reponses
+    if request.method == 'POST':
+        # Stores the data from the form inside a variable otherwise it will be useless (garbage collection)
+        data = responseForm(request.POST)
+        if data.is_valid():
+            # saves the data without commiting it
+            instance =  data.save(commit= False)
+            # adding data to questionID
+            instance.questionID = question_instance
+            # save and commit everything to create an instance to the database
+            instance.save()
+            return redirect ('view_enquete_admin', pk = enqueteID)
+        
+    context = {
+        'responseForm' : responseForm,
+    }
+    return render(request, 'admin/addResponse.html', context)
+
+#endregion
+
+#region Enqueteur Views
 
 # This creates and save the enquete for the enqueteur. The roleID is not used here btw, just there cause otherwise it won't save and have an error
 @login_required
@@ -128,28 +283,6 @@ def create_enquete_enqueteur(request):
     return render(request, 'enqueteur/enquete_creation_enqueteur.html', context)
 
 @login_required
-# Update enquete for admin
-def enqueteUPD_admin(request, pk):
-    # Gets the existing instance from template pk
-    enquete_instance = enquete.objects.get(id = pk)
-    
-    if request.method == 'POST':
-        # Updates the instance but not saving it yet, just in the memory
-        upd_enquete = enqueteForm(request.POST, instance= enquete_instance )
-        
-        # Saves it
-        if upd_enquete.is_valid():
-            upd_enquete.save()
-            return redirect ('home_admin')
-    else:
-        # Just keeps the former instance cause you did nothing with it
-        upd_enquete = enqueteForm(instance= enquete_instance)                                            
-    context = {
-            'form' : upd_enquete
-    }
-    return render(request, 'admin/enquete_creation.html', context)
-
-@login_required
 # Update enquete for enqueteur
 def enqueteUPD_enqueteur(request, pk):
     # Gets the existing instance
@@ -172,19 +305,6 @@ def enqueteUPD_enqueteur(request, pk):
     }
     return render(request, 'enqueteur/enquete_creation_enqueteur.html', context)
     
-    
-@login_required
-def enqueteDelete_admin(request, pk):
-    
-    # Getting the instance to delete from the database
-    enquete_instance = enquete.objects.get(id = pk)
-    
-    # Deleting the instance
-    if request.method == 'POST':
-        enquete_instance.delete()
-        return redirect ('home_admin')
-    return render(request, 'admin/delete.html')
-
 @login_required
 def enqueteDelete_enqueteur(request, pk):
     
@@ -196,26 +316,6 @@ def enqueteDelete_enqueteur(request, pk):
         enquete_instance.delete()
         return redirect ('home_enqueteur')
     return render(request, 'enqueteur/delete.html')
-
-# View all the questions and answers of an enquete for admin
-@login_required
-def view_admin(request, pk):
-    
-    # Gets the enquete instance we need 
-    enquete_instance = enquete.objects.get(id = pk)
-
-    # Gets all the questions of a specific enquete using related name that can give access of questions to enquete
-    all_questions = enquete_instance.questions.all() # is like questions.objects.filter(enqueteID = enquete_instance) which is automatically made and you can use it with the related name
-    
-    # Get the enquete id from the enquete_needed(this will be a number). Otherwise it's gonna see all the instances instead and we only need the id
-    enqueteID = enquete_instance.id
-    
-
-    context = {
-        'all_questions' : all_questions,
-        'enqueteID' : enqueteID
-    }
-    return render (request, 'admin/view_enquete.html', context)
 
 # View all the questions and answers of an enquete for enqueteur
 @login_required
@@ -235,35 +335,6 @@ def view_enqueteur(request, pk):
     }
     return render (request, 'enqueteur/view_enquete.html', context)
 
-
-@login_required
-def addQuestion_admin(request, pk):
-    # Getting the enquete instance including id
-    enqueteID = enquete.objects.get(id = pk)  
-    context = {
-        'questionForm' : questionForm
-    }
-    # Adding instance to the form
-    if request.method == 'POST':
-        qForm = questionForm(request.POST)
-        
-        if qForm.is_valid():
-            # Saving the instance but not commiting it
-            questions = qForm.save(commit = False)
-            
-            # Adding value to the enqueteID which is the enquete instance we got before
-            questions.enqueteID = enqueteID
-            
-            # Commiting it
-            questions.save()
-            return redirect ('view_enquete_admin', pk = pk)  # Needs a pk cause the link has a pk
-        else :
-           qForm = questionForm()
-           
-    # Gets the website cause it's a GET method 
-    else:
-        return render (request, 'admin/question_creation.html', context)
-    
 # Adds questions to enqueteur
 @login_required
 def addQuestion_enqueteur(request, pk):
@@ -294,32 +365,6 @@ def addQuestion_enqueteur(request, pk):
 
 # Edit question instance
 @login_required
-def updQuestion_adm(request, pk):
-    
-    # Gets instance to edit
-    question_instance = questions.objects.get(id = pk)
-    
-    # Gets enquete instance to comeback to the view_enquete_admin
-    enquete_instance = question_instance.enqueteID
-    
-    # Getting the form
-    qForm = questionForm(instance= question_instance)
-    
-    # Edit instance
-    if request.method == 'POST':
-        qForm = questionForm(request.POST, instance= question_instance)
-        if qForm.is_valid():
-            qForm.save()
-            return redirect('view_enquete_admin', pk = enquete_instance)
-        else:
-            qForm = questionForm(instance= question_instance)  
-    context = {
-        'questionForm' : qForm
-    }
-    return render (request, 'admin/question_creation.html', context) 
-
-# Edit question instance
-@login_required
 def updQuestion_enqueteur(request, pk):
     
     # Gets instance to edit
@@ -345,20 +390,6 @@ def updQuestion_enqueteur(request, pk):
     return render (request, 'enqueteur/question_creation.html', context) 
 
 @login_required
-def deleteQuestion_adm(request, pk):
-    questionInstance = questions.objects.get(id = pk)
-    enqueteInstance = questionInstance.enqueteID
-    enqueteID = enqueteInstance.id
-    if request.method == 'POST':
-        questionInstance.delete()
-        return redirect ('view_enquete_admin', pk = enqueteID)
-    
-    context = {
-        'enqueteID' : enqueteID
-    }
-    return render (request, 'admin/delete_question.html', context)
-
-@login_required
 def deleteQuestion_enqueteur(request, pk):
     questionInstance = questions.objects.get(id = pk)
     enqueteInstance = questionInstance.enqueteID
@@ -371,3 +402,31 @@ def deleteQuestion_enqueteur(request, pk):
         'enqueteID' : enqueteID
     }
     return render (request, 'enqueteur/delete_question.html', context)
+
+
+
+@login_required
+# Creates answers for equeteur
+def addResponses_enqueteur(request, pk):
+
+    #Gets question to add response to
+    question_instance = questions.objects.get(id = pk)
+
+    #Gets enquete.id for redirection
+    enquete_instance = question_instance.enqueteID
+    enqueteID = enquete_instance.id
+
+    if request.method == 'POST':
+        # Gets the data from the form
+        data = responseForm(request.POST)
+        if data.is_valid():
+            # Changing questionID from none to question_instance
+            instance = data.save(commit = False)
+            instance.questionID = question_instance
+            instance.save()
+            return redirect ('view_enquete_enqueteur', pk = enqueteID)
+        else:
+            data = responseForm()
+    return render (request, 'enqueteur/addResponse.html')
+
+#endregion

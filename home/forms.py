@@ -1,7 +1,7 @@
 from django import forms
 from .models import enquete, questions, responseSelection, enqueteResponse, reponses
 
-# Enquete form creation
+# Add Enquete form
 class enqueteForm(forms.ModelForm):
     class Meta:
         model = enquete
@@ -14,7 +14,7 @@ class enqueteForm(forms.ModelForm):
             'end_date' : forms.DateInput(attrs={'class' : '', 'type' : 'date'}),
         }
         
-# Question form creation
+# Add Question form
 class questionForm(forms.ModelForm):
     class Meta:
         model = questions
@@ -23,4 +23,14 @@ class questionForm(forms.ModelForm):
             'question' : forms.TextInput(attrs={'class' :''}),
             'description' : forms.TextInput(attrs={'class' :''}),
             'response_type' : forms.TextInput(attrs={'class' :''}),
+        }
+
+# Add Response Form
+class responseForm(forms.ModelForm):
+    class Meta:
+        model = responseSelection
+        fields = ['reponse', 'note']
+        widgets = {
+            'response' : forms.TextInput(attrs = {'class': ''}),
+            'note' : forms.TextInput(attrs = {'class': ''}),
         }

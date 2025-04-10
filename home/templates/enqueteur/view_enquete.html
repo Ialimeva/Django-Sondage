@@ -12,14 +12,23 @@
             <th>Question</th>
             <th>Description</th>
             <th>Response Type</th>
+            <th>Response List</th>
         </tr>
         {% for question in all_questions %}
         <tr>
             <td>{{ question.question }}</td>
             <td>{{ question.description }}</td>
             <td>{{ question.response_type }}</td>
+            <td>
+                <ul>
+                    {% for r in question.reponseSelection.all %}
+                    <li>{{ r.reponse }}</li>
+                    {% endfor %}
+                </ul>
+            </td>
             <td><a href="{% url 'upd_question_enqueteur' question.id %}"><button>Edit</button></a></td>
             <td><a href="{% url 'delete_question_enqueteur' question.id %}"><button>Delete</button></a></td>
+            <td><a href="{% url 'add_response_enqueteur' question.id %}"><button>Add Response</button></a></td>
         </tr>
         {% endfor %}
     </table>

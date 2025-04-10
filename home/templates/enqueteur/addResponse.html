@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Response</title>
+</head>
+<body>
+    <form action="" method="post">
+        {% csrf_token %} <!-- Prevents Cross-Site Response Forgery -->
+        {{ responseForm.as_p }}
+        <input type="submit" value="Add">
+    </form>
+</body>
+</html>
