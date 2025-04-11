@@ -56,11 +56,11 @@ class enqueteResponse(models.Model):
     enqueteID = models.ForeignKey(enquete, on_delete= models.CASCADE, related_name= 'enqueteResponse')
     status = models.CharField(max_length= 10)
     responseDate = models.DateField(auto_now_add= True)
-    validationDateTime = models.DateField(null= False, blank= False)
+    validationDateTime = models.DateField(auto_now_add= True)
 
 # Creation des reposes finals
 class reponses(models.Model):
-    enqueteResponseID = models.ForeignKey(enqueteResponse, on_delete= models.CASCADE, related_name= 'reponses')
+    enqueteResponseID = models.ForeignKey(enqueteResponse, on_delete= models.CASCADE, related_name= 'reponses', null= True)
     questionID = models.ForeignKey(questions, on_delete= models.CASCADE, related_name= 'reponses')
     responseSelectionID = models.ForeignKey(responseSelection, on_delete= models.CASCADE, related_name= 'reponses')
     response_comment = models.CharField(max_length= 50)

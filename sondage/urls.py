@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from home.views import welcomePage,survey,emailValidation, registration, login, home_admin, home_enqueteur, create_enquete, create_enquete_enqueteur, enqueteUPD_admin, enqueteUPD_enqueteur, enqueteDelete_admin, enqueteDelete_enqueteur, view_admin, view_enqueteur, addQuestion_admin, updQuestion_adm, updQuestion_enqueteur, deleteQuestion_adm, deleteQuestion_enqueteur, addResponse_admin, addResponses_enqueteur, enqueteList
+from home.views import welcomePage,survey,thanksPage, registration, login, home_admin, home_enqueteur, create_enquete, create_enquete_enqueteur, enqueteUPD_admin, enqueteUPD_enqueteur, enqueteDelete_admin, enqueteDelete_enqueteur, view_admin, view_enqueteur, addQuestion_admin, updQuestion_adm, updQuestion_enqueteur, deleteQuestion_adm, deleteQuestion_enqueteur, addResponse_admin, addResponses_enqueteur, enqueteList
 
 urlpatterns = [
     path('', welcomePage),
@@ -49,6 +49,5 @@ urlpatterns = [
     # Participants urls
     path('all-enquete/', enqueteList, name='all_enquete'),
     path('take-enquete/<str:pk>', survey, name='take_enquete'),
-    path('email-validation/', emailValidation, name='email_validation'),
-    
+    path('thanks/', thanksPage, name='thanks_page'),
 ]

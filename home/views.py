@@ -431,6 +431,7 @@ def addResponses_enqueteur(request, pk):
 
 #endregion
 
+#region Participants
 # Page which new participants land on
 def welcomePage(request):
     return render(request, 'welcome.html')
@@ -451,18 +452,39 @@ def survey(request, pk):
     enquete_instance = enquete.objects.get(id = pk)
 
     #Gets questions of that enquete instance.
-    questions = enquete_instance.questions.all()
+    all_questions = enquete_instance.questions.all()
 
     if request.method == 'POST':
-        
-        data = reponses.objects.create()
-        return redirect('')
+        # Gets all the data from the form submission
+        questionID = request.POST['question.id']
+        responseID = request.POST['options.id']
+        comment = request.POST['responseComment']
+        email = request.POST['email']
+
+        # Retrieve the instances of the database itself from the form data from the fk
+        question = questions.objects.get(id = questionID)
+        response = responseSelection.objects.get(id = responseID)
+
+        # Creates an instance with the data from the form submission
+        data = reponses.objects.create(questionID = question, responseSelectionID = response, response_comment = comment, enqueteResponseID = None)
+
+        if email is not None:
+            instance = data
+            # Creates an instance of enqueteResponse to add to the instance
+            enqueteResponse_instance = enqueteResponse.objects.create(email = email, enqueteID = enquete_instance, status = 'Validee')
+            enqueteResponse_instance.save()
+            # Adds it
+            instance.enqueteResponseID = enqueteResponse_instance
+            # Saves the final instance with the enqueteResponse fk attribute
+            instance.save()
+            return redirect('thanks_page')
 
     context = {
-        'all_questions': questions,
+        'all_questions': all_questions,
     }
     return render(request, 'participants/survey.html', context)
 
-#Getting participants email adress for survey validation
-def emailValidation(request):
-    return render(request, 'participants/emailValidation.html')
+def thanksPage(request):
+    return render (request, 'participants/thanksPage.html')
+
+#endregion
