@@ -4,6 +4,7 @@ from .models import role, role_and_user_connex, enquete, questions, reponses, re
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import enqueteForm, questionForm, responseForm
+from django.forms.models import model_to_dict
 
 
 def registration(request):
@@ -125,18 +126,6 @@ def enqueteDelete_admin(request, pk):
     return render(request, 'admin/delete.html')
 
 
-
-# Same but in the enqueteur homepage
-@login_required
-def home_enqueteur(request):
-    # Get all the enquete of the user (and filter it so the enqueteur sees their enquetes)
-    userID = request.user
-    all_enquete = enquete.objects.filter(userID = userID)
-    context = {
-            'all_enquete' : all_enquete
-    }
-    return render(request, 'enqueteur/home_enqueteur.html', context)
-
 # View all the questions and answers of an enquete for admin
 @login_required
 def view_admin(request, pk):
@@ -149,6 +138,7 @@ def view_admin(request, pk):
     
     # Get the enquete id from the enquete_needed(this will be a number). Otherwise it's gonna see all the instances instead and we only need the id
     enqueteID = enquete_instance.id
+
 
     context = {
         'all_questions' : all_questions,
@@ -250,9 +240,52 @@ def addResponse_admin(request, pk):
     }
     return render(request, 'admin/addResponse.html', context)
 
+# View all the participants email
+def participantsEmail(request, pk):
+    # Enquete instance
+    enquete_instance = enquete.objects.get(id = pk)
+
+    # Gets all enqueteResponse
+    enqueteResponse_instances = enquete_instance.enqueteResponse.all()
+
+    context = {
+        'enqueteResponses' : enqueteResponse_instances
+    }
+    return render(request, 'admin/viewEmail.html', context)
+
+
+# View participant answer
+def participantAnswer(request, pk):
+    # Gets enqueteResponse instance
+    enqueteResponse_instance = enqueteResponse.objects.get(id = pk)
+
+    # Gets all reponse
+    all_responses = enqueteResponse_instance.responses.all()
+
+    for response in all_responses:
+        values = model_to_dict(response)
+
+    context = {
+        'responses' : all_responses,
+    }
+    
+    return render (request, 'admin/viewResponse.html', context)
+
+
 #endregion
 
 #region Enqueteur Views
+
+# Enqueteur homepage
+@login_required
+def home_enqueteur(request):
+    # Get all the enquete of the user (and filter it so the enqueteur sees their enquetes)
+    userID = request.user
+    all_enquete = enquete.objects.filter(userID = userID)
+    context = {
+            'all_enquete' : all_enquete
+    }
+    return render(request, 'enqueteur/home_enqueteur.html', context)
 
 # This creates and save the enquete for the enqueteur. The roleID is not used here btw, just there cause otherwise it won't save and have an error
 @login_required
@@ -320,7 +353,7 @@ def enqueteDelete_enqueteur(request, pk):
 # View all the questions and answers of an enquete for enqueteur
 @login_required
 def view_enqueteur(request, pk):
-    # Gets the instance i need
+    # Gets the instance we need
     enquete_instance = enquete.objects.get(id = pk)
     
     # Gets instance id for template
@@ -429,6 +462,38 @@ def addResponses_enqueteur(request, pk):
             data = responseForm()
     return render (request, 'enqueteur/addResponse.html')
 
+
+# View all the participants email
+def participantsEmail_enqueteur(request, pk):
+    # Enquete instance
+    enquete_instance = enquete.objects.get(id = pk)
+
+    # Gets all enqueteResponse
+    enqueteResponse_instances = enquete_instance.enqueteResponse.all()
+
+    context = {
+        'enqueteResponses' : enqueteResponse_instances
+    }
+    return render(request, 'enqueteur/viewEmail.html', context)
+
+
+# View participant answer
+def participantAnswer_enqueteur(request, pk):
+    # Gets enqueteResponse instance
+    enqueteResponse_instance = enqueteResponse.objects.get(id = pk)
+
+    # Gets all reponse
+    all_responses = enqueteResponse_instance.responses.all()
+
+    for response in all_responses:
+        values = model_to_dict(response)
+
+    context = {
+        'responses' : all_responses,
+    }
+    
+    return render (request, 'enqueteur/viewResponse.html', context)
+
 #endregion
 
 #region Participants
@@ -459,19 +524,19 @@ def survey(request, pk):
 
         # Gets the question ids list from the form created from the browser using array list
         questionIDs = request.POST.getlist('question.id[]') # we get a list of question ids
-        print(questionIDs)
 
         # Grts the comment from the form
         comment = request.POST['responseComment']
+        
         # Gets the email from the form
         email = request.POST['email']
-
+        
+        all_reponses = []
         for qID in questionIDs:
             # Gets the question instance
             question_instance = questions.objects.get(id = qID)
             
             selectedOptions = request.POST.getlist(f'options_{qID}[]') # we get a list of all responses ids for every questions
-            print(selectedOptions)
 
             if selectedOptions:
                 reponse_obj = reponses.objects.create(
@@ -480,7 +545,16 @@ def survey(request, pk):
                 )
                 reponse_obj.responseSelectionID.set(selectedOptions)
                 reponse_obj.save()
-                print(reponse_obj.responseSelectionID)
+                all_reponses.append(reponse_obj)
+
+        enqueteResponse_instance = enqueteResponse.objects.create(
+            email = email,
+            enqueteID = enquete_instance,
+            status = 'Validee',
+        )
+        enqueteResponse_instance.responses.set(all_reponses)
+        enqueteResponse_instance.save()
+
     context = {
         'all_questions': all_questions,
     }

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <table border="1">
+        <tr>
+            <th>Question</th>
+            <th>Responses</th>
+            <th>Comment</th>
+        </tr>
+        {% for response in responses %}
+        <tr>
+            <td>{{ response.questionID.question }}</td>
+            <td>
+                <ul>
+                    {% for item in response.responseSelectionID.all %}
+                        <li>{{ item.reponse }}</li>
+                    {% endfor %}
+                </ul>
+            </td>
+            <td>{{ response.response_comment }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

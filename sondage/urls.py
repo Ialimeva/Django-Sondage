@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from home.views import welcomePage,survey,thanksPage, registration, login, home_admin, home_enqueteur, create_enquete, create_enquete_enqueteur, enqueteUPD_admin, enqueteUPD_enqueteur, enqueteDelete_admin, enqueteDelete_enqueteur, view_admin, view_enqueteur, addQuestion_admin, updQuestion_adm, updQuestion_enqueteur, deleteQuestion_adm, deleteQuestion_enqueteur, addResponse_admin, addResponses_enqueteur, enqueteList
+from home.views import welcomePage,survey,thanksPage,participantsEmail, participantAnswer, participantsEmail_enqueteur, participantAnswer_enqueteur, registration, login, home_admin, home_enqueteur, create_enquete, create_enquete_enqueteur, enqueteUPD_admin, enqueteUPD_enqueteur, enqueteDelete_admin, enqueteDelete_enqueteur, view_admin, view_enqueteur, addQuestion_admin, updQuestion_adm, updQuestion_enqueteur, deleteQuestion_adm, deleteQuestion_enqueteur, addResponse_admin, addResponses_enqueteur, enqueteList
 
 urlpatterns = [
     path('', welcomePage),
@@ -36,6 +36,8 @@ urlpatterns = [
     path('update-question-admin/<str:pk>', updQuestion_adm, name='upd_question_admin'),
     path('delete-question-admin/<str:pk>', deleteQuestion_adm, name='delete_question_admin'),
     path('add-response-admin/<str:pk>', addResponse_admin, name='add_response_admin'),
+    path('view-email-participants/<str:pk>', participantsEmail, name='view_email_participants'),
+    path('view-answer-participants/<str:pk>', participantAnswer, name='view_answer_participants'),
     
     # Enqueteur urls
     path('update-enquete-enqueteur/<str:pk>', enqueteUPD_enqueteur, name='update_enquete_enqueteur'),
@@ -45,6 +47,8 @@ urlpatterns = [
     path('update-question-enqueteur/<str:pk>', updQuestion_enqueteur, name='upd_question_enqueteur'),
     path('delete-question-enqueteur/<str:pk>', deleteQuestion_enqueteur, name='delete_question_enqueteur'),
     path('add-response-enqueteur/<str:pk>', addResponses_enqueteur, name='add_response_enqueteur'),
+    path('view-email-participants-enqueteur/<str:pk>', participantsEmail_enqueteur, name='view_email_participants_enqueteur'),
+    path('view-answer-participants-enquqteur/<str:pk>', participantAnswer_enqueteur, name='view_answer_participants_enqueteur'),
 
     # Participants urls
     path('all-enquete/', enqueteList, name='all_enquete'),
