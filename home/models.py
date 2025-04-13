@@ -49,6 +49,12 @@ class responseSelection(models.Model):
     def __str__(self):
         return self.reponse
 
+# Creation des reposes finals
+class reponses(models.Model):
+    questionID = models.ForeignKey(questions, on_delete= models.CASCADE, related_name= 'reponses')
+    responseSelectionID = models.ManyToManyField(responseSelection, related_name= 'reponses')
+    response_comment = models.CharField(max_length= 50)
+
 # Creation des connections entre enquete, questions et reponses
 class enqueteResponse(models.Model):
     email = models.EmailField(max_length= 50)
@@ -57,10 +63,5 @@ class enqueteResponse(models.Model):
     status = models.CharField(max_length= 10)
     responseDate = models.DateField(auto_now_add= True)
     validationDateTime = models.DateField(auto_now_add= True)
+    responses = models.ManyToManyField(reponses, related_name= 'enqueteResponse')
 
-# Creation des reposes finals
-class reponses(models.Model):
-    enqueteResponseID = models.ForeignKey(enqueteResponse, on_delete= models.CASCADE, related_name= 'reponses', null= True)
-    questionID = models.ForeignKey(questions, on_delete= models.CASCADE, related_name= 'reponses')
-    responseSelectionID = models.ForeignKey(responseSelection, on_delete= models.CASCADE, related_name= 'reponses')
-    response_comment = models.CharField(max_length= 50)

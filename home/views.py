@@ -456,29 +456,31 @@ def survey(request, pk):
 
     if request.method == 'POST':
         # Gets all the data from the form submission
-        questionID = request.POST['question.id']
-        responseID = request.POST['options.id']
+
+        # Gets the question ids list from the form created from the browser using array list
+        questionIDs = request.POST.getlist('question.id[]') # we get a list of question ids
+        print(questionIDs)
+
+        # Grts the comment from the form
         comment = request.POST['responseComment']
+        # Gets the email from the form
         email = request.POST['email']
 
-        # Retrieve the instances of the database itself from the form data from the fk
-        question = questions.objects.get(id = questionID)
-        response = responseSelection.objects.get(id = responseID)
+        for qID in questionIDs:
+            # Gets the question instance
+            question_instance = questions.objects.get(id = qID)
+            
+            selectedOptions = request.POST.getlist(f'options_{qID}[]') # we get a list of all responses ids for every questions
+            print(selectedOptions)
 
-        # Creates an instance with the data from the form submission
-        data = reponses.objects.create(questionID = question, responseSelectionID = response, response_comment = comment, enqueteResponseID = None)
-
-        if email is not None:
-            instance = data
-            # Creates an instance of enqueteResponse to add to the instance
-            enqueteResponse_instance = enqueteResponse.objects.create(email = email, enqueteID = enquete_instance, status = 'Validee')
-            enqueteResponse_instance.save()
-            # Adds it
-            instance.enqueteResponseID = enqueteResponse_instance
-            # Saves the final instance with the enqueteResponse fk attribute
-            instance.save()
-            return redirect('thanks_page')
-
+            if selectedOptions:
+                reponse_obj = reponses.objects.create(
+                    questionID = question_instance,
+                    response_comment = comment
+                )
+                reponse_obj.responseSelectionID.set(selectedOptions)
+                reponse_obj.save()
+                print(reponse_obj.responseSelectionID)
     context = {
         'all_questions': all_questions,
     }

@@ -5,21 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Survey</title>
 </head>
-<script>
-    /* This is for transferring the p text content to the hidden input when submit is made cause p 
-    doesn't have a name attribute to post to view */
-    document.getElementById('form').addEventListener('submit', function(){
-        document.getElementById('content').value = document.getElementById('value').textContent
-    })
-</script>
 <body>
     <form action="" method="post" id="form">
         {% csrf_token %}
         {% for question in all_questions %}
-        <p id="value">{{ question.question }}</p>
-        <input type="hidden" name="question.id" id="content" value="{{ question.id }}">
-                {% for r in question.reponseSelection.all %}
-                <input type="checkbox" name="options.id" value="{{ r.id }}">
+        <p>{{ question.question }}</p>
+        <input type="hidden" name="question.id[]" value="{{ question.id }}">
+            {% for r in question.reponseSelection.all %}
+                <input type="checkbox" name="options_{{ question.id }}[]" value="{{ r.id }}" >
                 <label for="options.id">{{ r.reponse }}</label>
                 {% endfor %}
         {% endfor %}
